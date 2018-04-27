@@ -21,49 +21,25 @@
   Color should be set differently for each polygon.
   ====================*/
 void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
-  int top, mid, bot;
-
-  if (points->m[1][i] > points->m[1][i + 1]) {
-    top = i;
+  int top, mid, bot, tmp;
+  top = i + 2;
+  mid = i + 1;
+  bot = i;
+  
+  if (points->m[1][bot] > points->m[1][mid]) {
+    tmp = bot;
+    bot = mid;
+    mid = tmp;
   }
-  else {
-    top = i + 1;
+  if (points->m[1][bot] > points->m[1][top]) {
+    tmp = bot;
+    bot = top;
+    top = tmp;
   }
-
-  if (points->m[1][top] < points->m[1][i + 2]) {
-    if (top == i) {
-      top = i + 2;
-      mid = i;
-      bot = i + 1;
-    }
-    else if (top == i + 1) {
-      top = i + 2;
-      mid = i + 1;
-      bot = i;
-    }
-    top = i + 2;
-  }
-
-  if (top == i) {
-    if (points->m[1][i + 1] > points->m[1][i + 2]) {
-      mid = i + 1;
-      bot = i + 2;
-    }
-    else {
-      mid = i + 2;
-      bot = i + 1;
-    }
-  }
-
-  else if (top == i + 1) {
-    if (points->m[1][i] > points->m[1][i + 2]) {
-      mid = i;
-      bot = i + 2;
-    }
-    else {
-      mid = i + 2;
-      bot = i;
-    }
+  if (points->m[1][mid] > points->m[1][top]) {
+    tmp = mid;
+    mid = top;
+    top = tmp;
   }
   
   float xb = points->m[0][bot];
@@ -83,14 +59,13 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
   float d1z = 0;
   if (yt - yb != 0) {
     d0x = (xt - xb) / (yt - yb);
-    d0z = (zm - zbo) / (yt - yb);
+    d0z = (zt - zbo) / (yt - yb);
   }
   if (ym - yb != 0) {
     d1x = (xm - xb) / (ym - yb);
-    d1z = (zt - zbo) / (ym - yb);
+    d1z = (zm - zbo) / (ym - yb);
   }
-  
-  int y = yb;
+  float y = yb;
   float x = xb;
   float x1 = x;
   float z = zbo;
@@ -98,11 +73,11 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
 
   srand(time(NULL));
   color c;
-  c.red = i % 255;
-  c.green = rand() % 255;
-  c.blue = 128;
+  c.red = (c.red + rand()) % 255;
+  c.green = (c.green + rand()) % 255;
+  c.blue = (c.blue + rand()) % 255;
 
-  for (y = yb; y <= ym; y ++) {
+  for (y = yb; y < ym; y ++) {
     draw_line(x, y, z, x1, y, z1, s, zb, c);
     x += d0x;
     x1 += d1x;
@@ -116,6 +91,7 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
     d1z = (zt - zm) / (yt - ym);
   }
   x = xm;
+  z = zm;
   for (y = ym; y < yt; y ++) {
     draw_line(x, y, z, x1, y, z1, s, zb, c);
     x += d0x;
