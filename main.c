@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
   struct matrix * edges;
   struct matrix * polygons;
   struct matrix * transform;
-
+  clear_zbuffer(zb);
   edges = new_matrix(4, 4);
   transform = new_matrix(4, 4);
   polygons = new_matrix(4, 4);
@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
     parse_file( argv[1], transform, edges, polygons, s, zb);
   else
     parse_file( "stdin", transform, edges, polygons, s, zb);
-
+  
   free_matrix( edges );
   free_matrix( transform );
   free_matrix( polygons );

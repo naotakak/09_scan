@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "ml6.h"
 #include "display.h"
@@ -20,7 +21,61 @@
   Color should be set differently for each polygon.
   ====================*/
 void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
+  double xb = points->m[0][i];
+  double xm = points->m[0][i + 1];
+  double xt = points->m[0][i + 2];
+  int yb = points->m[1][i];
+  int ym = points->m[1][i + 1];
+  int yt = points->m[1][i + 2];
+  double zbo = points->m[2][i];
+  double zm = points->m[2][i + 1];
+  double zt = points->m[2][i + 2];
+  
+  //printf("test1\n");
+  double delta0 = 0;
+  double delta2 = 0;
+  double delta1 = 0;
+  double delta3 = 0;
+  if (yt - yb != 0) {
+    delta0 = xt - xb / yt - yb;
+    delta2 = zm - zbo / yt - yb;
+    delta3 = zt - zbo / yt - yb;
+  }
+  if (ym - yb != 0) {
+    delta1 = xm - xb / ym - yb;
+  }
+  int y = yb;
 
+  double x = xb;
+  double x1 = x;
+  double z = zbo;
+  double z1 = z;
+  srand(time(NULL));
+  color c;
+  c.red = rand() % 255;
+  c.green = i % 255;
+  c.blue = rand() % 255;
+  for (y; y <= ym; y ++) {
+    draw_line(x, y, z, x1, y, z1, s, zb, c);
+    x += delta0;
+    x1 += delta1;
+    z += delta3;
+    z1 += delta2;
+  }
+  delta1 = 0;
+  delta2 = 0;
+  if (yt - ym != 0) {
+    delta1 = xt - xm / yt - ym;
+    delta2 = zt - zm / yt - ym;
+  }
+  x = xm;
+  for (y; y < yt; y ++) {
+    draw_line(x, y, z, x1, y, z1, s, zb, c);
+    x += delta0;
+    x1 += delta1;
+    z += delta3;
+    z1 += delta2;
+  }
 }
 
 /*======== void add_polygon() ==========
@@ -94,6 +149,8 @@ void draw_polygons(struct matrix *polygons, screen s, zbuffer zb, color c ) {
                  polygons->m[1][point+2],
                  polygons->m[2][point+2],
                  s, zb, c);
+      //printf("test\n");
+      scanline_convert(polygons, point, s, zb);
     }
   }
 }
