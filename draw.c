@@ -21,60 +21,107 @@
   Color should be set differently for each polygon.
   ====================*/
 void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
-  double xb = points->m[0][i];
-  double xm = points->m[0][i + 1];
-  double xt = points->m[0][i + 2];
-  int yb = points->m[1][i];
-  int ym = points->m[1][i + 1];
-  int yt = points->m[1][i + 2];
-  double zbo = points->m[2][i];
-  double zm = points->m[2][i + 1];
-  double zt = points->m[2][i + 2];
+  int top, mid, bot;
+
+  if (points->m[1][i] > points->m[1][i + 1]) {
+    top = i;
+  }
+  else {
+    top = i + 1;
+  }
+
+  if (points->m[1][top] < points->m[1][i + 2]) {
+    if (top == i) {
+      top = i + 2;
+      mid = i;
+      bot = i + 1;
+    }
+    else if (top == i + 1) {
+      top = i + 2;
+      mid = i + 1;
+      bot = i;
+    }
+    top = i + 2;
+  }
+
+  if (top == i) {
+    if (points->m[1][i + 1] > points->m[1][i + 2]) {
+      mid = i + 1;
+      bot = i + 2;
+    }
+    else {
+      mid = i + 2;
+      bot = i + 1;
+    }
+  }
+
+  else if (top == i + 1) {
+    if (points->m[1][i] > points->m[1][i + 2]) {
+      mid = i;
+      bot = i + 2;
+    }
+    else {
+      mid = i + 2;
+      bot = i;
+    }
+  }
+  
+  float xb = points->m[0][bot];
+  float xm = points->m[0][mid];
+  float xt = points->m[0][top];
+  float yb = points->m[1][bot];
+  float ym = points->m[1][mid];
+  float yt = points->m[1][top];
+  float zbo = points->m[2][bot];
+  float zm = points->m[2][mid];
+  float zt = points->m[2][top];
   
   //printf("test1\n");
-  double delta0 = 0;
-  double delta2 = 0;
-  double delta1 = 0;
-  double delta3 = 0;
+  float d0x = 0;
+  float d1x = 0;
+  float d0z = 0;
+  float d1z = 0;
   if (yt - yb != 0) {
-    delta0 = xt - xb / yt - yb;
-    delta2 = zm - zbo / yt - yb;
-    delta3 = zt - zbo / yt - yb;
+    d0x = (xt - xb) / (yt - yb);
+    d0z = (zm - zbo) / (yt - yb);
   }
   if (ym - yb != 0) {
-    delta1 = xm - xb / ym - yb;
+    d1x = (xm - xb) / (ym - yb);
+    d1z = (zt - zbo) / (ym - yb);
   }
+  
   int y = yb;
+  float x = xb;
+  float x1 = x;
+  float z = zbo;
+  float z1 = z;
 
-  double x = xb;
-  double x1 = x;
-  double z = zbo;
-  double z1 = z;
   srand(time(NULL));
   color c;
-  c.red = rand() % 255;
-  c.green = i % 255;
-  c.blue = rand() % 255;
-  for (y; y <= ym; y ++) {
+  c.red = i % 255;
+  c.green = rand() % 255;
+  c.blue = 128;
+
+  for (y = yb; y <= ym; y ++) {
     draw_line(x, y, z, x1, y, z1, s, zb, c);
-    x += delta0;
-    x1 += delta1;
-    z += delta3;
-    z1 += delta2;
+    x += d0x;
+    x1 += d1x;
+    z += d0z;
+    z1 += d1z;
   }
-  delta1 = 0;
-  delta2 = 0;
+  d1x = 0;
+  d1z = 0;
   if (yt - ym != 0) {
-    delta1 = xt - xm / yt - ym;
-    delta2 = zt - zm / yt - ym;
+    d1x = (xt - xm) / (yt - ym);
+    d1z = (zt - zm) / (yt - ym);
   }
   x = xm;
-  for (y; y < yt; y ++) {
+  for (y = ym; y < yt; y ++) {
     draw_line(x, y, z, x1, y, z1, s, zb, c);
-    x += delta0;
-    x1 += delta1;
-    z += delta3;
-    z1 += delta2;
+    x += d0x;
+    x1 += d1x;
+    z += d0z;
+    z1 += d1z;
   }
 }
 
