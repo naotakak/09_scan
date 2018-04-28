@@ -1,0 +1,47 @@
+push
+move
+100 450 0
+rotate
+y -30
+rotate
+x 10
+box
+0 0 0 150 25 20
+push
+box
+125 -25 0 25 75 20
+push
+box
+0 -100 0 150 25 20
+pop
+push
+move
+150 0 0
+rotate
+z -45
+box
+5 50 0 50 20 20
+push
+box
+25 75 0 50 20 20
+pop
+pop
+push
+move
+150 -200 0
+rotate
+y -30
+rotate
+x 10
+rotate
+z -20
+box
+0 0 0 150 25 20
+push
+box
+0 -70 0 150 25 20
+box
+0 -140 0 150 25 20
+display
+save
+trash.png

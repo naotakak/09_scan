@@ -90,8 +90,8 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
     d1x = (xt - xm) / (yt - ym);
     d1z = (zt - zm) / (yt - ym);
   }
-  x = xm;
-  z = zm;
+  x1 = xm;
+  z1 = zm;
   for (y = ym; y < yt; y ++) {
     draw_line(x, y, z, x1, y, z1, s, zb, c);
     x += d0x;
